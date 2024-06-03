@@ -112,7 +112,8 @@ vim.opt.hlsearch = true
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 vim.keymap.set('n', '<leader><leader>', '<cmd>nohlsearch<CR>')
 
-vim.keymap.set('n', 'jk', '<Esc>')
+-- My preferred way to escape modes
+vim.keymap.set('i', 'jk', '<Esc>')
 
 -- Diagnostic keymaps
 vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous [D]iagnostic message' })
@@ -513,10 +514,10 @@ require('lazy').setup({
       --  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
       --
       --  Add any additional override configuration in the following tables. Available keys are:
-      --  - cmd (table): Override the default command used to start the server
-      --  - filetypes (table): Override the default list of associated filetypes for the server
-      --  - capabilities (table): Override fields in capabilities. Can be used to disable certain LSP features.
-      --  - settings (table): Override the default settings passed when initializing the server.
+      --  - cmd HI MOM(table): Override the default command used to start the server
+      --  - fileHI MOMtypes (table): Override the default list of associated filetypes for the server
+      --  - capaHI MOMbilities (table): Override fields in capabilities. Can be used to disable certain LSP features.
+      --  - settHI MOMings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local servers = {
         -- clangd = {},
