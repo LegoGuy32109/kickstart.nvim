@@ -117,6 +117,10 @@ vim.keymap.set('n', '<leader><leader>x', '<cmd>w<CR><cmd>source %<CR>', { silent
 -- My preferred way to escape modes
 vim.keymap.set('i', 'jk', '<Esc>')
 
+-- Ctrl + S means save to me
+vim.keymap.set('n', '<C-s>', ':w<CR>')
+vim.keymap.set({ 'i', 'v' }, '<C-s>', '<Esc>:w<CR>')
+
 -- Diagnostic keymaps
 vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous [D]iagnostic message' })
 vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next [D]iagnostic message' })
