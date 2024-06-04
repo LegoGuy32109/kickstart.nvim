@@ -3,13 +3,10 @@
 -- Shows how to use the DAP plugin to debug your code.
 --
 -- Primarily focused on configuring the debugger for Go, but can
--- be extended to other languages as well. That's why it's called
--- kickstart.nvim and not kitchen-sink.nvim ;)
+-- be extended to other languages as well.
 
 return {
-  -- NOTE: Yes, you can install new plugins here!
   'mfussenegger/nvim-dap',
-  -- NOTE: And you can specify dependencies as well
   dependencies = {
     -- Creates a beautiful debugger UI
     'rcarriga/nvim-dap-ui',
@@ -37,8 +34,6 @@ return {
       -- see mason-nvim-dap README for more information
       handlers = {},
 
-      -- You'll need to check that you have the required things installed
-      -- online, please don't ask me how to install them :)
       ensure_installed = {
         -- Update this to ensure that you have the debuggers for the langs you want
         -- 'delve',
@@ -47,7 +42,7 @@ return {
 
     -- Basic debugging keymaps, feel free to change to your liking!
     vim.keymap.set('n', '<F5>', dap.continue, { desc = 'Debug: Start/Continue' })
-    -- Restart?
+    -- TODO: Restart?
     -- vim.keymap.set('n', '<C-F5>', dap., { desc = 'Debug: Start/Continue' })
     vim.keymap.set('n', '<F1>', dap.step_into, { desc = 'Debug: Step Into' })
     vim.keymap.set('n', '<F2>', dap.step_over, { desc = 'Debug: Step Over' })
@@ -55,15 +50,15 @@ return {
     vim.keymap.set('n', '<leader>b', dap.toggle_breakpoint, { desc = 'Debug: Toggle Breakpoint' })
     vim.keymap.set('n', '<leader>B', function()
       dap.set_breakpoint(vim.fn.input 'Breakpoint condition: ')
-    end, { desc = 'Debug: Set Breakpoint' })
+    end, { desc = 'Debug: Set Conditional Breakpoint' })
 
     -- Dap UI setup
     -- For more information, see |:help nvim-dap-ui|
+    ---@diagnostic disable-next-line: missing-fields
     dapui.setup {
       -- Set icons to characters that are more likely to work in every terminal.
-      --    Feel free to remove or use ones that you like more! :)
-      --    Don't feel like these are good choices.
       icons = { expanded = '▾', collapsed = '▸', current_frame = '*' },
+      ---@diagnostic disable-next-line: missing-fields
       controls = {
         icons = {
           pause = '⏸',
@@ -77,6 +72,9 @@ return {
           disconnect = '⏏',
         },
       },
+      mappings = {},
+      element_mappings = {},
+      expand_lines = true,
     }
 
     -- Toggle to see last session result. Without this, you can't see session output in case of unhandled exception.
@@ -107,7 +105,63 @@ return {
         type = 'godot',
         request = 'launch',
         name = 'Launch Main Scene',
-        project = '${workspaceFolder}', -- is this a vscode thing the godot people copied?
+        project = '${workspaceFolder}',
+      },
+    }
+
+    -- Javascript config
+    dap.adapters['pwa-node'] = {
+      type = 'server',
+      host = 'localhost',
+      port = '${port}',
+      executable = {
+        command = 'node',
+        args = { 'C:/Users/U284340/AppData/Local/nvim/js-debug/src/dapDebugServer.js', '${port}' },
+      },
+    }
+    dap.adapters['pwa-chrome'] = {
+      type = 'server',
+      host = 'localhost',
+      port = '${port}',
+      executable = {
+        command = 'node',
+        args = { 'C:/Users/U284340/AppData/Local/nvim/js-debug/src/dapDebugServer.js', '${port}' },
+      },
+    }
+
+    dap.configurations.javascript = {
+      {
+        type = 'pwa-node',
+        request = 'launch',
+        name = 'Launch File',
+        program = '${file}',
+        cwd = '${workspaceFolder}',
+      },
+      {
+        type = 'pwa-chrome',
+        request = 'launch',
+        name = 'Launch Chrome',
+        url = 'http://localhost:3000',
+        sourceMaps = true,
+      },
+      -- Custom configs
+      {
+        type = 'pwa-chrome',
+        request = 'launch',
+        name = 'Prowler - UI',
+        url = 'http://localhost:3000',
+        webRoot = '${workspaceFolder}/ui',
+        sourceMaps = true,
+      },
+      {
+        type = 'pwa-node',
+        request = 'launch',
+        name = 'Prowler - server',
+        runtimeExecutable = '${workspaceFolder}/server/node_modules/.bin/nodemon',
+        program = '${workspaceFolder}/server/server.js',
+        cwd = '${workspaceFolder}/server',
+        -- console = 'integratedTerminal',
+        -- internalConsoleOptions = 'neverOpen',
       },
     }
   end,
