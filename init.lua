@@ -22,6 +22,11 @@
 If you experience any errors while trying to install kickstart, run `:checkhealth` for more info.
 --]]
 
+-- I got a lot of undefined global errors for vim so I remove it,
+-- maybe could add that in the configuration
+---@diagnostic disable-next-line: undefined-global
+local vim = vim
+
 -- Set <space> as the leader key
 -- See `:help mapleader`
 --  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
@@ -105,6 +110,12 @@ vim.keymap.set('n', '<leader><leader>x', '<cmd>w<CR><cmd>source %<CR>', { silent
 
 -- My preferred way to escape modes
 vim.keymap.set('i', 'jk', '<Esc>')
+
+-- Let's try some terminal commands
+vim.keymap.set('t', '<C-j>', '<Up>')
+vim.keymap.set('t', '<C-k>', '<Down>')
+vim.keymap.set('t', '<C-h>', '<Left>')
+vim.keymap.set('t', '<C-l>', '<Right>')
 
 -- Ctrl + S means save to me
 vim.keymap.set('n', '<C-s>', ':w<CR>')
@@ -316,9 +327,8 @@ require('lazy').setup({
       local builtin = require 'telescope.builtin'
       vim.keymap.set('n', '<leader>sh', builtin.help_tags, { desc = '[S]earch [H]elp' })
       vim.keymap.set('n', '<leader>sk', builtin.keymaps, { desc = '[S]earch [K]eymaps' })
-      -- space f is taken by formatter
       vim.keymap.set('n', '<leader>sf', function()
-        builtin.find_files { hidden = true }
+        builtin.find_files { hidden = false }
       end, { desc = '[S]earch [F]iles' })
       vim.keymap.set('n', '<leader>ss', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
       vim.keymap.set('n', '<leader>sw', builtin.grep_string, { desc = '[S]earch current [W]ord' })
@@ -326,7 +336,7 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
       vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
       vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
-      -- vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
+      vim.keymap.set('n', '<leader>s<leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
 
       -- Slightly advanced example of overriding default behavior and theme
       vim.keymap.set('n', '<leader>/', function()
@@ -776,6 +786,7 @@ require('lazy').setup({
       --  - ci'  - [C]hange [I]nside [']quote
       require('mini.ai').setup { n_lines = 500 }
 
+      -- TODO: Learn this vvv
       -- Add/delete/replace surroundings (brackets, quotes, etc.)
       --
       -- - saiw) - [S]urround [A]dd [I]nner [W]ord [)]Paren
@@ -800,6 +811,8 @@ require('lazy').setup({
 
       -- ... and there is more!
       --  Check out: https://github.com/echasnovski/mini.nvim
+      --  Yeah I just added this one
+      require('mini.files').setup {}
     end,
   },
   { -- Highlight, edit, and navigate code
@@ -813,6 +826,7 @@ require('lazy').setup({
         'typescript',
         'tsx',
         'css',
+        'json',
         -- I added the above :)
         'bash',
         'c',
