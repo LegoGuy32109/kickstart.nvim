@@ -108,14 +108,18 @@ vim.keymap.set('n', '<leader><leader>', '<cmd>nohlsearch<CR>')
 -- NOTE: Only works for Lua code so far that I've seen
 vim.keymap.set('n', '<leader><leader>x', '<cmd>w<CR><cmd>source %<CR>', { silent = true })
 
--- My preferred way to escape modes
+-- My preferred way to escape normal mode
 vim.keymap.set('i', 'jk', '<Esc>')
 
 -- Let's try some terminal commands
-vim.keymap.set('t', '<C-j>', '<Up>')
-vim.keymap.set('t', '<C-k>', '<Down>')
+vim.keymap.set('t', '<C-j>', '<Down>')
+vim.keymap.set('t', '<C-k>', '<Up>')
 vim.keymap.set('t', '<C-h>', '<Left>')
 vim.keymap.set('t', '<C-l>', '<Right>')
+vim.keymap.set('t', '<C-J>', '<S-Down>')
+vim.keymap.set('t', '<C-K>', '<S-Up>')
+vim.keymap.set('t', '<C-H>', '<S-Left>')
+vim.keymap.set('t', '<C-L>', '<S-Right>')
 
 -- Ctrl + S means save to me
 vim.keymap.set('n', '<C-s>', ':w<CR>')
@@ -127,12 +131,8 @@ vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next [D]iagn
 vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Show diagnostic [E]rror messages' })
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
 
--- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
--- for people to discover. Otherwise, you normally need to press <C-\><C-n>
---
--- NOTE: This won't work in all terminal emulators/tmux/etc. Try your own mapping
--- or just use <C-\><C-n> to exit terminal mode
-vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
+-- I thought this would be appropriate next to Ctrl + C
+vim.keymap.set('t', '<C-x>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 
 --  Use CTRL+<hjkl> to switch between windows
 --  See `:help wincmd` for a list of all window commands
@@ -432,6 +432,8 @@ require('lazy').setup({
           --  To jump back, press <C-t>.
           map('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
 
+          map('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
+
           -- Find references for the word under your cursor.
           map('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
 
@@ -446,7 +448,7 @@ require('lazy').setup({
 
           -- Fuzzy find all the symbols in your current document.
           --  Symbols are things like variables, functions, types, etc.
-          map('<leader>ds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
+          map('<leader>sd', require('telescope.builtin').lsp_document_symbols, '[S]earch [D]ocument Symbols')
 
           -- Fuzzy find all the symbols in your current workspace.
           --  Similar to document symbols, except searches over your entire project.
@@ -463,10 +465,6 @@ require('lazy').setup({
           -- Opens a popup that displays documentation about the word under your cursor
           --  See `:help K` for why this keymap.
           map('K', vim.lsp.buf.hover, 'Hover Documentation')
-
-          -- WARN: This is not Goto Definition, this is Goto Declaration.
-          --  For example, in C this would take you to the header.
-          map('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
 
           -- The following two autocommands are used to highlight references of the
           -- word under your cursor when your cursor rests there for a little while.
@@ -810,8 +808,11 @@ require('lazy').setup({
 
       -- ... and there is more!
       --  Check out: https://github.com/echasnovski/mini.nvim
-      --  Yeah I just added this one
-      require('mini.files').setup {}
+      require('mini.files').setup {
+        config = function()
+          return {}
+        end,
+      }
       require('mini.completion').setup {}
       require('mini.pairs').setup {}
     end,
@@ -911,5 +912,20 @@ require('lazy').setup({
   },
 })
 
+-- Mapping to set current working directory in Mini.Files
+local files_set_cwd = function()
+  -- Works only if cursor is on the valid file system entry
+  local cur_entry_path = MiniFiles.get_fs_entry().path
+  local cur_directory = vim.fs.dirname(cur_entry_path)
+  vim.fn.chdir(cur_directory)
+  vim.print('Moving to ' + cur_entry_path)
+end
+
+vim.api.nvim_create_autocmd('User', {
+  pattern = 'MiniFilesBufferCreate',
+  callback = function(args)
+    vim.keymap.set('n', '<leader>d', files_set_cwd, { buffer = args.data.buf_id })
+  end,
+})
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et

@@ -56,19 +56,19 @@ return {
     ---@diagnostic disable-next-line: missing-fields
     dapui.setup {
       -- Set icons to characters that are more likely to work in every terminal.
-      icons = { expanded = '▾', collapsed = '▸', current_frame = '*' },
+      icons = { expanded = '', collapsed = '', current_frame = '*' },
       ---@diagnostic disable-next-line: missing-fields
       controls = {
         icons = {
-          pause = '⏸',
+          pause = '',
           play = '▶',
-          step_into = '🔽',
-          step_over = '⏭',
-          step_out = '⏮',
-          step_back = '🅱️',
+          step_into = '',
+          step_over = '',
+          step_out = '',
+          step_back = '',
           run_last = '▶▶',
-          terminate = '⏹',
-          disconnect = '⏏',
+          terminate = '',
+          disconnect = '',
         },
       },
       mappings = {},
@@ -99,6 +99,7 @@ return {
       },
     }
 
+    -- NOTE: OK
     -- Javascript config
     dap.adapters['pwa-node'] = {
       type = 'server',
@@ -109,14 +110,40 @@ return {
         args = { '${env:HOME}/AppData/Local/nvim/js-debug/src/dapDebugServer.js', '${port}' },
       },
     }
-    dap.adapters['pwa-chrome'] = {
-      type = 'server',
-      host = 'localhost',
-      port = '${port}',
-      executable = {
-        command = 'node',
-        args = { '${env:HOME}/AppData/Local/nvim/js-debug/src/dapDebugServer.js', '${port}' },
-      },
+    -- dap.adapters['pwa-chrome'] = {
+    --   type = 'server',
+    --   host = 'localhost',
+    --   port = '${port}',
+    --   executable = {
+    --     command = 'node',
+    --     args = { '${env:HOME}/AppData/Local/nvim/js-debug/src/dapDebugServer.js', '${port}' },
+    --   },
+    -- }
+    -- dap.adapters.node = {}
+    -- dap.adapters.chrome = {
+    --   type = 'executable',
+    --   command = 'node',
+    --   args = { '${env:HOME}/AppData/Local/nvim/vscode-chrome-debug/out/src/chromeDebug.js' },
+    -- }
+
+    -- Chrome installation from https://github.com/mfussenegger/nvim-dap/wiki/Debug-Adapter-installation#javascript-chrome
+    local chromeConfig = {
+      name = 'Chrome',
+      type = 'chrome',
+      request = 'attach',
+      program = '${file}',
+      cwd = vim.fn.getcwd(),
+      sourceMaps = true,
+      protocol = 'inspector',
+      port = 9222,
+      webRoot = '${workspaceFolder}',
+    }
+
+    dap.configurations.javascriptreact = {
+      chromeConfig,
+    }
+    dap.configurations.typescriptreact = {
+      chromeConfig,
     }
 
     dap.configurations.javascript = {
@@ -127,32 +154,14 @@ return {
         program = '${file}',
         cwd = '${workspaceFolder}',
       },
-      {
-        type = 'pwa-chrome',
-        request = 'launch',
-        name = 'Launch Chrome',
-        url = 'http://localhost:3000',
-        sourceMaps = true,
-      },
-      -- Custom configs
       -- {
       --   type = 'pwa-chrome',
       --   request = 'launch',
-      --   name = 'Prowler - UI',
+      --   name = 'Launch Chrome',
       --   url = 'http://localhost:3000',
-      --   webRoot = '${workspaceFolder}/ui',
       --   sourceMaps = true,
       -- },
-      -- {
-      --   type = 'pwa-node',
-      --   request = 'launch',
-      --   name = 'Prowler - server',
-      --   runtimeExecutable = '${workspaceFolder}/server/node_modules/.bin/nodemon',
-      --   program = '${workspaceFolder}/server/server.js',
-      --   cwd = '${workspaceFolder}/server',
-      --   -- console = 'integratedTerminal',
-      --   -- internalConsoleOptions = 'neverOpen',
-      -- },
+      chromeConfig,
     }
   end,
 }
