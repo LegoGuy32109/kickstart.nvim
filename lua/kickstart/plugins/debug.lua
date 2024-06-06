@@ -19,7 +19,6 @@ return {
     'jay-babu/mason-nvim-dap.nvim',
 
     -- Add your own debuggers here
-    -- 'leoluz/nvim-dap-go',
   },
   config = function()
     local dap = require 'dap'
@@ -63,7 +62,7 @@ return {
         icons = {
           pause = '⏸',
           play = '▶',
-          step_into = '⏎',
+          step_into = '🔽',
           step_over = '⏭',
           step_out = '⏮',
           step_back = '🅱️',
@@ -83,15 +82,6 @@ return {
     dap.listeners.after.event_initialized['dapui_config'] = dapui.open
     dap.listeners.before.event_terminated['dapui_config'] = dapui.close
     dap.listeners.before.event_exited['dapui_config'] = dapui.close
-
-    -- Install golang specific config
-    -- require('dap-go').setup {
-    --   delve = {
-    --     -- On Windows delve must be run attached or it crashes.
-    --     -- See https://github.com/leoluz/nvim-dap-go/blob/main/README.md#configuring
-    --     detached = vim.fn.has 'win32' == 0,
-    --   },
-    -- }
 
     -- GDScript config
     dap.adapters.godot = {
@@ -116,7 +106,7 @@ return {
       port = '${port}',
       executable = {
         command = 'node',
-        args = { 'C:/Users/U284340/AppData/Local/nvim/js-debug/src/dapDebugServer.js', '${port}' },
+        args = { '${env:HOME}/AppData/Local/nvim/js-debug/src/dapDebugServer.js', '${port}' },
       },
     }
     dap.adapters['pwa-chrome'] = {
@@ -125,7 +115,7 @@ return {
       port = '${port}',
       executable = {
         command = 'node',
-        args = { 'C:/Users/U284340/AppData/Local/nvim/js-debug/src/dapDebugServer.js', '${port}' },
+        args = { '${env:HOME}/AppData/Local/nvim/js-debug/src/dapDebugServer.js', '${port}' },
       },
     }
 
@@ -145,24 +135,24 @@ return {
         sourceMaps = true,
       },
       -- Custom configs
-      {
-        type = 'pwa-chrome',
-        request = 'launch',
-        name = 'Prowler - UI',
-        url = 'http://localhost:3000',
-        webRoot = '${workspaceFolder}/ui',
-        sourceMaps = true,
-      },
-      {
-        type = 'pwa-node',
-        request = 'launch',
-        name = 'Prowler - server',
-        runtimeExecutable = '${workspaceFolder}/server/node_modules/.bin/nodemon',
-        program = '${workspaceFolder}/server/server.js',
-        cwd = '${workspaceFolder}/server',
-        -- console = 'integratedTerminal',
-        -- internalConsoleOptions = 'neverOpen',
-      },
+      -- {
+      --   type = 'pwa-chrome',
+      --   request = 'launch',
+      --   name = 'Prowler - UI',
+      --   url = 'http://localhost:3000',
+      --   webRoot = '${workspaceFolder}/ui',
+      --   sourceMaps = true,
+      -- },
+      -- {
+      --   type = 'pwa-node',
+      --   request = 'launch',
+      --   name = 'Prowler - server',
+      --   runtimeExecutable = '${workspaceFolder}/server/node_modules/.bin/nodemon',
+      --   program = '${workspaceFolder}/server/server.js',
+      --   cwd = '${workspaceFolder}/server',
+      --   -- console = 'integratedTerminal',
+      --   -- internalConsoleOptions = 'neverOpen',
+      -- },
     }
   end,
 }

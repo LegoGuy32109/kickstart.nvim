@@ -314,7 +314,7 @@ require('lazy').setup({
         -- pickers = {}
         extensions = {
           ['ui-select'] = {
-            require('telescope.themes').get_dropdown(),
+            require('telescope.themes').get_ivy(),
           },
         },
       }
@@ -379,7 +379,6 @@ require('lazy').setup({
       'WhoIsSethDaniel/mason-tool-installer.nvim',
 
       -- Useful status updates for LSP.
-      -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
       { 'j-hui/fidget.nvim', opts = {} },
 
       -- `neodev` configures Lua LSP for your Neovim config, runtime and plugins
@@ -813,6 +812,8 @@ require('lazy').setup({
       --  Check out: https://github.com/echasnovski/mini.nvim
       --  Yeah I just added this one
       require('mini.files').setup {}
+      require('mini.completion').setup {}
+      require('mini.pairs').setup {}
     end,
   },
   { -- Highlight, edit, and navigate code
