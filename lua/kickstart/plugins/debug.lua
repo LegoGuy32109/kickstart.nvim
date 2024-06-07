@@ -5,8 +5,16 @@
 -- Primarily focused on configuring the debugger for Go, but can
 -- be extended to other languages as well.
 
+local js_languages = {
+  'typescript',
+  'typescriptreact',
+  'javascriptreact',
+  'javascript',
+}
+
 return {
   'mfussenegger/nvim-dap',
+
   dependencies = {
     -- Creates a beautiful debugger UI
     'rcarriga/nvim-dap-ui',
@@ -19,7 +27,47 @@ return {
     'jay-babu/mason-nvim-dap.nvim',
 
     -- Add your own debuggers here
+    {
+      'microsoft/vscode-js-debug',
+      -- I had to do this myself, keeping here for reference
+      build = 'npm i --legacy-peer-deps && npx gulp vsDebugServerBundle && mv dist out',
+    },
+    {
+      'mxsdev/nvim-dap-vscode-js',
+      config = function()
+        ---@diagnostic disable-next-line missing-required-fields
+        require('dap-vscode-js').setup {
+          debugger_path = vim.fn.resolve(vim.fn.stdpath 'data' .. '/lazy/vscode-js-debug'),
+          -- Command to launch debug server, takes precedence over "node_path" and "debugger_path"
+          -- debugger_cmd = {"js-debug-adapter"},
+          --
+          -- Adapters to register to nvim-dap
+          adapters = {
+            'node',
+            'chrome',
+            'pwa-node',
+            'pwa-chrome',
+            'pwa-msedge',
+            'pwa-extensionHost',
+            'node-terminal',
+          },
+
+          -- Path for file logging
+          -- log_file_path = "./dap_vscode_js.log",
+          -- False to disable logging
+          -- log_file_level = false,
+          -- Logging level for output to console, set to false to disable console output
+          -- log_console_level = vim.log.levels.ERROR,
+        }
+      end,
+    },
+    -- Helps read json files for launch.json I guess
+    {
+      'Joakker/lua-json5',
+      build = './install sh',
+    },
   },
+
   config = function()
     local dap = require 'dap'
     local dapui = require 'dapui'
@@ -39,8 +87,18 @@ return {
       },
     }
 
-    -- Basic debugging keymaps, feel free to change to your liking!
-    vim.keymap.set('n', '<F5>', dap.continue, { desc = 'Debug: Start/Continue' })
+    vim.keymap.set('n', '<F5>', function()
+      if vim.fn.filereadable '.vscode/launch.json' then
+        local dapVscode = require 'dap.ext.vscode'
+        dapVscode.load_launchjs(nil, {
+          ['pwa-node'] = js_languages,
+          ['node'] = js_languages,
+          ['chrome'] = js_languages,
+          ['pwa-chrome'] = js_languages,
+        })
+      end
+      dap.continue()
+    end, { desc = 'Debug: Start/Continue' })
     -- TODO: Restart?
     -- vim.keymap.set('n', '<C-F5>', dap., { desc = 'Debug: Start/Continue' })
     vim.keymap.set('n', '<F1>', dap.step_into, { desc = 'Debug: Step Into' })
@@ -83,6 +141,62 @@ return {
     dap.listeners.before.event_terminated['dapui_config'] = dapui.close
     dap.listeners.before.event_exited['dapui_config'] = dapui.close
 
+    -- NOTE: OK JS node stuff here
+
+    for _, language in ipairs(js_languages) do
+      dap.configurations[language] = {
+        -- Debug single nodejs files
+        {
+          type = 'pwa-node',
+          request = 'launch',
+          name = 'Launch file',
+          program = '${file}',
+          cwd = '${workspaceFolder}',
+          sourceMaps = true,
+        },
+        -- Debug nodejs process (add --inspect or --inspect-brk)
+        {
+          type = 'pwa-node',
+          request = 'attach',
+          name = 'Attach',
+          processId = require('dap.utils').pick_process,
+          cwd = '${workspaceFolder}',
+          sourceMaps = true,
+        },
+        -- Debug web applications (client side)
+        {
+          type = 'pwa-chrome',
+          request = 'launch',
+          name = 'Launch & Debug Chrome',
+          url = function()
+            local co = coroutine.running()
+            return coroutine.create(function()
+              vim.ui.input({
+                prompt = 'Enter Url: ',
+                default = 'http://localhost:3000',
+              }, function(url)
+                if url == nil or url == '' then
+                  return
+                else
+                  coroutine.resume(co, url)
+                end
+              end)
+            end)
+          end,
+          webRoot = '${workspaceFolder}',
+          skipFiles = { '<node_internals>/* */*.js' },
+          protocol = 'inspector',
+          sourceMaps = true,
+          userDataDir = false,
+        },
+        {
+          name = '========== ⬇ launch.json configs ⬇ ==========',
+          type = '',
+          request = 'launch',
+        },
+      }
+    end
+
     -- GDScript config
     dap.adapters.godot = {
       type = 'server',
@@ -97,71 +211,6 @@ return {
         name = 'Launch Main Scene',
         project = '${workspaceFolder}',
       },
-    }
-
-    -- NOTE: OK
-    -- Javascript config
-    dap.adapters['pwa-node'] = {
-      type = 'server',
-      host = 'localhost',
-      port = '${port}',
-      executable = {
-        command = 'node',
-        args = { '${env:HOME}/AppData/Local/nvim/js-debug/src/dapDebugServer.js', '${port}' },
-      },
-    }
-    -- dap.adapters['pwa-chrome'] = {
-    --   type = 'server',
-    --   host = 'localhost',
-    --   port = '${port}',
-    --   executable = {
-    --     command = 'node',
-    --     args = { '${env:HOME}/AppData/Local/nvim/js-debug/src/dapDebugServer.js', '${port}' },
-    --   },
-    -- }
-    -- dap.adapters.node = {}
-    -- dap.adapters.chrome = {
-    --   type = 'executable',
-    --   command = 'node',
-    --   args = { '${env:HOME}/AppData/Local/nvim/vscode-chrome-debug/out/src/chromeDebug.js' },
-    -- }
-
-    -- Chrome installation from https://github.com/mfussenegger/nvim-dap/wiki/Debug-Adapter-installation#javascript-chrome
-    local chromeConfig = {
-      name = 'Chrome',
-      type = 'chrome',
-      request = 'attach',
-      program = '${file}',
-      cwd = vim.fn.getcwd(),
-      sourceMaps = true,
-      protocol = 'inspector',
-      port = 9222,
-      webRoot = '${workspaceFolder}',
-    }
-
-    dap.configurations.javascriptreact = {
-      chromeConfig,
-    }
-    dap.configurations.typescriptreact = {
-      chromeConfig,
-    }
-
-    dap.configurations.javascript = {
-      {
-        type = 'pwa-node',
-        request = 'launch',
-        name = 'Launch File',
-        program = '${file}',
-        cwd = '${workspaceFolder}',
-      },
-      -- {
-      --   type = 'pwa-chrome',
-      --   request = 'launch',
-      --   name = 'Launch Chrome',
-      --   url = 'http://localhost:3000',
-      --   sourceMaps = true,
-      -- },
-      chromeConfig,
     }
   end,
 }
