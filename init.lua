@@ -43,9 +43,6 @@ vim.g.have_nerd_font = true
 
 -- Make line numbers default
 vim.opt.number = true
--- You can also add relative line numbers, to help with jumping.
---  Experiment for yourself to see if you like it!
--- vim.opt.relativenumber = true
 
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.opt.mouse = 'a'
@@ -72,7 +69,7 @@ vim.opt.smartcase = true
 vim.opt.signcolumn = 'yes'
 
 -- Decrease update time
-vim.opt.updatetime = 250
+vim.opt.updatetime = 100
 
 -- Decrease mapped sequence wait time
 -- Displays which-key popup sooner
@@ -96,6 +93,9 @@ vim.opt.cursorline = true
 
 -- Minimal number of screen lines to keep above and below the cursor.
 vim.opt.scrolloff = 10
+
+vim.opt.tabstop = 4
+vim.opt.shiftwidth = 4
 
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
@@ -367,7 +367,11 @@ require('lazy').setup({
   {
     'pmizio/typescript-tools.nvim',
     dependencies = { 'nvim-lua/plenary.nvim', 'neovim/nvim-lspconfig' },
-    opts = {},
+    opts = {
+      on_attach = function(client)
+        client.server_capabilities.documentFormattingProvider = false
+      end,
+    },
   },
 
   { -- LSP Configuration & Plugins
@@ -543,7 +547,8 @@ require('lazy').setup({
         tailwindcss = {},
         cssls = {},
 
-        eslint = {},
+        -- eslint = {},
+        biome = {},
 
         lua_ls = {
           -- cmd = {...},
@@ -635,8 +640,12 @@ require('lazy').setup({
         --
         -- You can use a sub-list to tell conform to run *until* a formatter
         -- is found.
-        -- javascript = { { "prettierd", "prettier" } },
-        -- TODO: add json formatter
+        javascript = { { 'biome' } },
+        javascriptreact = { { 'biome' } },
+        json = { { 'biome' } },
+
+        ['*'] = { 'codespell' },
+        ['_'] = { 'trim_whitespace' },
       },
     },
   },
