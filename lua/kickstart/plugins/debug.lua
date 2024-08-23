@@ -114,7 +114,7 @@ return {
     ---@diagnostic disable-next-line: missing-fields
     dapui.setup {
       -- Set icons to characters that are more likely to work in every terminal.
-      icons = { expanded = '', collapsed = '', current_frame = '*' },
+      icons = { expanded = '', collapsed = '', current_frame = '>' },
       ---@diagnostic disable-next-line: missing-fields
       controls = {
         icons = {
@@ -135,13 +135,12 @@ return {
     }
 
     -- Toggle to see last session result. Without this, you can't see session output in case of unhandled exception.
-    vim.keymap.set('n', '<F7>', dapui.toggle, { desc = 'Debug: See last session result.' })
+    vim.keymap.set('n', '<F7>', dapui.toggle, { desc = 'Toggle dap-ui' })
+    vim.keymap.set({ 'n', 'v' }, '<leader>k', dapui.eval, { desc = 'Evaluate Expression' })
 
     dap.listeners.after.event_initialized['dapui_config'] = dapui.open
     dap.listeners.before.event_terminated['dapui_config'] = dapui.close
     dap.listeners.before.event_exited['dapui_config'] = dapui.close
-
-    -- NOTE: OK JS node stuff here
 
     for _, language in ipairs(js_languages) do
       dap.configurations[language] = {
