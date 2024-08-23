@@ -22,11 +22,6 @@
 If you experience any errors while trying to install kickstart, run `:checkhealth` for more info.
 --]]
 
--- I got a lot of undefined global errors for vim so I remove it,
--- maybe could add that in the configuration
----@diagnostic disable-next-line: undefined-global
-local vim = vim
-
 -- Set <space> as the leader key
 -- See `:help mapleader`
 --  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
@@ -374,6 +369,26 @@ require('lazy').setup({
     },
   },
 
+  {
+    'mrcjkb/rustaceanvim',
+    version = '^5',
+    lazy = false, -- plugin is already lazy
+  },
+
+  {
+    'kdheepak/lazygit.nvim',
+    cmd = {
+      'LazyGit',
+      'LazyGitConfig',
+      'LazyGitCurrentFile',
+      'LazyGitFilter',
+      'LazyGitFilterCurrentFile',
+    },
+    keys = {
+      { '<leader>lg', '<cmd>LazyGit<cr>', desc = 'Open lazy git' },
+    },
+  },
+
   { -- LSP Configuration & Plugins
     'neovim/nvim-lspconfig',
     dependencies = {
@@ -390,27 +405,12 @@ require('lazy').setup({
       { 'folke/neodev.nvim', opts = {} },
     },
     config = function()
-      -- Brief aside: **What is LSP?**
-      --
-      -- LSP is an initialism you've probably heard, but might not understand what it is.
-      --
-      -- LSP stands for Language Server Protocol. It's a protocol that helps editors
-      -- and language tooling communicate in a standardized fashion.
-      --
-      -- In general, you have a "server" which is some tool built to understand a particular
-      -- language (such as `gopls`, `lua_ls`, `rust_analyzer`, etc.). These Language Servers
-      -- (sometimes called LSP servers, but that's kind of like ATM Machine) are standalone
-      -- processes that communicate with some "client" - in this case, Neovim!
-      --
       -- LSP provides Neovim with features like:
       --  - Go to definition
       --  - Find references
       --  - Autocompletion
       --  - Symbol Search
       --  - and more!
-      --
-      -- Thus, Language Servers are external tools that must be installed separately from
-      -- Neovim. This is where `mason` and related plugins come into play.
       --
       -- If you're wondering about lsp vs treesitter, you can check out the wonderfully
       -- and elegantly composed help section, `:help lsp-vs-treesitter`
@@ -532,7 +532,19 @@ require('lazy').setup({
         -- clangd = {},
         -- gopls = {},
         -- pyright = {},
-        -- rust_analyzer = {},
+        -- rust_analyzer = {
+        -- on_attach = require('lspconfig').on_attach,
+        -- capabilities = require('lspconfig').capabilities,
+        --   filetypes = { 'rust' },
+        --   root_dir = require('lspconfig.util').root_pattern("Cargo.toml"),
+        --   settings = {
+        --     ['rust_analyzer'] = {
+        --       cargo = {
+        --         allFeatures = true,
+        --       },
+        --     },
+        --   },
+        -- },
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
         -- Some languages (like typescript) have entire language plugins that can be useful:
