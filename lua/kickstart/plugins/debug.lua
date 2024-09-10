@@ -30,7 +30,7 @@ return {
     {
       'microsoft/vscode-js-debug',
       -- I had to do this myself, keeping here for reference
-      build = 'npm i --legacy-peer-deps && npx gulp vsDebugServerBundle && mv dist out',
+      build = 'npm i --legacy-peer-deps && npx gulp vsDebugServerBundle && rename dist out',
     },
     {
       'mxsdev/nvim-dap-vscode-js',
