@@ -40,7 +40,7 @@ vim.g.have_nerd_font = true
 vim.opt.number = true
 
 -- Enable mouse mode, can be useful for resizing splits for example!
-vim.opt.mouse = 'a'
+-- vim.opt.mouse = 'a'
 
 -- Don't show the mode, since it's already in the status line
 vim.opt.showmode = false
@@ -131,10 +131,28 @@ vim.keymap.set('t', '<C-x>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 
 --  Use CTRL+<hjkl> to switch between windows
 --  See `:help wincmd` for a list of all window commands
-vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left window' })
-vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
-vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
-vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
+vim.keymap.set('n', '<M-;>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
+vim.keymap.set('n', '<M-j>', '<C-w><C-h>', { desc = 'Move focus to the left window' })
+vim.keymap.set('n', '<M-l>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
+vim.keymap.set('n', '<M-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
+vim.keymap.set('n', '<M-Left>', '<C-w><C-h>', { desc = 'Move focus to the left window' })
+vim.keymap.set('n', '<M-Right>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
+vim.keymap.set('n', '<M-Down>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
+vim.keymap.set('n', '<M-Up>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
+vim.keymap.set('n', '<S-Down>', '<C-d>', { desc = 'Move down file half a view' })
+vim.keymap.set('n', '<S-Up>', '<C-u>', { desc = 'Move up file half a view' })
+
+-- remapping vim-motions to match glorious engarammmer design
+vim.keymap.set('n', 'h', ',', { desc = 'move F or T times backward' })
+vim.keymap.set('n', ',', ';', { desc = 'move F or T times forward' })
+vim.keymap.set('n', 'j', 'h', { desc = 'move N characters to left' })
+vim.keymap.set('n', 'l', 'j', { desc = 'move N characters to down' })
+vim.keymap.set('n', ';', 'l', { desc = 'move N characters to right' })
+vim.keymap.set('v', 'h', ',', { desc = 'move F or T times backward' })
+vim.keymap.set('v', ',', ';', { desc = 'move F or T times forward' })
+vim.keymap.set('v', 'j', 'h', { desc = 'move N characters to left' })
+vim.keymap.set('v', 'l', 'j', { desc = 'move N characters to down' })
+vim.keymap.set('v', ';', 'l', { desc = 'move N characters to right' })
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
@@ -360,6 +378,24 @@ require('lazy').setup({
       on_attach = function(client)
         client.server_capabilities.documentFormattingProvider = false
       end,
+      handlers = {
+        tsserver = {
+          logVerbosity = 'verbose',
+          path = './.yarn/sdks/typescript/lib',
+          trace = 'verbose',
+        },
+      },
+      settings = {
+        tsserver_path = './.yarn/sdks/typescript/lib',
+        tsserver = {
+          logVerbosity = 'verbose',
+          path = './.yarn/sdks/typescript/lib',
+          trace = 'verbose',
+        },
+        typescript = {
+          tsdk = { './.yarn/sdks/typescript/lib' },
+        },
+      },
     },
   },
 
